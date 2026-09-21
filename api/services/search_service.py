@@ -1,14 +1,14 @@
-from models.schemas import SearchCreate, SearchCreateResponse
-from models.database import SearchJob, Offer
+from db.models import SearchCreate, SearchCreateResponse
+from db.models import SearchJob, Offer
 from datetime import datetime
 from config import PENDING
 import threading
 import logging 
-from database import get_session
+from db.database import get_session
 from config import FAILED, DONE, RUNNING
 from fastapi import HTTPException
 from sqlmodel import select
-from models.schemas import SearchResponse, OfferResponse
+from db.models import SearchResponse, OfferResponse
 from scraper.rekrute import get_jobs
 
 def start_scraping(search_id: int):

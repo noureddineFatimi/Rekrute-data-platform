@@ -1,7 +1,7 @@
 from sqlmodel import SQLModel, create_engine, Session
 from config import DATABASE_URL
 
-from models.database import SearchJob, Offer
+from db.models import SearchJob, Offer
 
 DATABASE_URL = DATABASE_URL
 
