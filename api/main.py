@@ -1,9 +1,6 @@
 from fastapi import FastAPI
 from api.routers import searches
 import uvicorn
-from db.database import create_db_and_tables
-
-create_db_and_tables()
 
 app = FastAPI(title="Scraping Management API")
 

@@ -1,17 +1,16 @@
-from sqlmodel import SQLModel, create_engine, Session
-from config import DATABASE_URL
+from sqlmodel import create_engine, Session
+from config import POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, POSTGRES_PORT, POSTGRES_HOST
 
-from db.models import SearchJob, Offer
-
-DATABASE_URL = DATABASE_URL
+DATABASE_URL = (
+    f"postgresql+psycopg://"
+    f"{POSTGRES_USER}:{POSTGRES_PASSWORD}"
+    f"@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
+)
 
 engine = create_engine(
     DATABASE_URL,
     echo=True
 )
-
-def create_db_and_tables():
-    SQLModel.metadata.create_all(engine)
 
 def get_session():
     return Session(engine)

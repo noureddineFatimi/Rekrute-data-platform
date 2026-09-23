@@ -6,7 +6,11 @@ load_dotenv()
 
 PROXY_USERNAME = os.getenv("PROXY_USERNAME")
 PASSWORD = os.getenv("PASSWORD")
-DATABASE_URL=os.getenv("DATABASE_URL")
+POSTGRES_USER = os.getenv("POSTGRES_USER")
+POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
+POSTGRES_DB = os.getenv("POSTGRES_DB", "rekrute_db")
+POSTGRES_HOST = os.getenv("POSTGRES_HOST", "localhost")
+POSTGRES_PORT = os.getenv("POSTGRES_PORT", "5432")
 PENDING = "pending" 
 DONE = "done"
 FAILED = "failed"
@@ -18,10 +22,3 @@ if PROXY_USERNAME is None or PASSWORD is None:
         "or in the environment variables."
     )
     raise RuntimeError("Proxy username or password is missing")
-
-if DATABASE_URL is None :
-    logging.error(
-        "database url is missing"
-    )
-    raise RuntimeError("database url is missing")
-

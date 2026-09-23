@@ -1,15 +1,15 @@
-from db.models import SearchCreate, SearchCreateResponse
-from db.models import SearchJob, Offer
+from api.models.schemas import SearchCreate, SearchCreateResponse
+from api.models.database import SearchJob, Offer
 from datetime import datetime
 from config import PENDING
 import threading
 import logging 
-from db.database import get_session
 from config import FAILED, DONE, RUNNING
 from fastapi import HTTPException
 from sqlmodel import select
-from db.models import SearchResponse, OfferResponse
+from api.models.schemas import SearchResponse, OfferResponse
 from scraper.rekrute import get_jobs
+from db.database import get_session
 
 def start_scraping(search_id: int):
     """
@@ -64,24 +64,39 @@ def run_scraping(search_id: int):
 
             for offer_data in get_jobs(search.url, search.max_items):
 
-                offer = Offer(
-                    search_id=search_id,
-                    titre=offer_data.get("titre"),
-                    link=offer_data.get("link"),
-                    sector=offer_data.get("sector"),
-                    experience=offer_data.get("experience"),
-                    region=offer_data.get("region"),
-                    formation=offer_data.get("formation"),
-                    competencesPersonnelles=offer_data.get(
-                        "competencesPersonnelles"
-                    ),
-                    contrat=offer_data.get("contrat"),
-                    teletravail=offer_data.get("teletravail"),
-                    description=offer_data.get("description"),
-                    dateLimite=offer_data.get("dateLimite"),
-                )
+                existing_offer = session.exec(select(Offer).where(Offer.link == offer_data.get("link"))).first()
 
-                session.add(offer)
+                if existing_offer:
+                    existing_offer.titre = offer_data.get("titre")
+                    existing_offer.sector = offer_data.get("sector")
+                    existing_offer.experience = offer_data.get("experience")
+                    existing_offer.region = offer_data.get("region")
+                    existing_offer.formation = offer_data.get("formation")
+                    existing_offer.competences_personnelles = offer_data.get("competencesPersonnelles")
+                    existing_offer.contrat = offer_data.get("contrat")
+                    existing_offer.teletravail = offer_data.get("teletravail")
+                    existing_offer.description = offer_data.get("description")
+                    existing_offer.date_limite = offer_data.get("dateLimite")
+                    existing_offer.search_id = search_id
+                else:
+                    offer = Offer(
+                        search_id=search_id,
+                        titre=offer_data.get("titre"),
+                        link=offer_data.get("link"),
+                        sector=offer_data.get("sector"),
+                        experience=offer_data.get("experience"),
+                        region=offer_data.get("region"),
+                        formation=offer_data.get("formation"),
+                        competences_personnelles=offer_data.get(
+                            "competencesPersonnelles"
+                        ),
+                        contrat=offer_data.get("contrat"),
+                        teletravail=offer_data.get("teletravail"),
+                        description=offer_data.get("description"),
+                        date_limite=offer_data.get("dateLimite"),
+                    )
+
+                    session.add(offer)
                 session.commit()
                 count += 1
 
@@ -96,6 +111,7 @@ def run_scraping(search_id: int):
             )
 
         except Exception as e:
+            session.rollback()
 
             logging.exception(
                 "Erreur pendant le scraping search_id=%s",

@@ -4,3 +4,4 @@ __pycache__/
 venv/
 proxy-list.txt
 *.db
+db_password.txt
