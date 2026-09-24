@@ -1,9 +1,8 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException
 import logging
 from api.models.schemas import SearchCreate, SearchCreateResponse
-from api.services.search_service import create_search, get_jobs_by_search_id
+from api.services.offer_service import create_search, get_jobs_by_search_id
 from api.models.schemas import SearchResponse
-from db.database import get_session
 
 logging.basicConfig(level=logging.DEBUG)
 

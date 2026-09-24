@@ -1,23 +1,7 @@
-from pydantic import BaseModel, Field, field_validator
-
-#post
-class SearchCreate(BaseModel):
-    url: str
-    maxItems: int = Field(default=10, ge=1)
-
-    @field_validator("url")
-    @classmethod
-    def must_be_rekrute(cls, v: str) -> str:
-        if not v.startswith("https://www.rekrute.com/"):
-            raise ValueError("L'URL doit pointer vers rekrute.com")
-        return v
-
-class SearchCreateResponse(BaseModel):
-    search_id: int 
-    status: str 
+from pydantic import BaseModel
 
 #get
-class OfferResponse(BaseModel):
+class Offer(BaseModel):
     id: int 
     titre: str | None = None
     link: str | None = None
@@ -31,9 +15,6 @@ class OfferResponse(BaseModel):
     description: str | None = None
     date_limite: str | None = None
 
-class SearchResponse(BaseModel):
-    search_id: int
-    status: str
-    count: int
-    offers: list[OfferResponse] | None = None
-    error: str | None = None
+class OffersResponse(BaseModel):
+    count :int = 0
+    offers: list[Offer] = []

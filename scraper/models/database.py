@@ -1,4 +1,15 @@
+from datetime import datetime
 from sqlmodel import SQLModel, Field
+
+class SearchJob(SQLModel, table=True):
+    __tablename__ = "search_job"
+
+    id: int | None = Field(default=None, primary_key=True)
+    url: str
+    max_items: int
+    status: str
+    created_at: datetime
+    error: str | None = None
 
 class Offer(SQLModel, table=True):
     __tablename__ = "offer"
