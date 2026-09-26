@@ -1,62 +1,22 @@
-from api.models.schemas import SearchCreate, SearchCreateResponse
-from api.models.database import SearchJob, Offer
-from datetime import datetime
-from config import PENDING
-import threading
+from scraper.db.models import SearchJob, Offer
 import logging 
-from config import FAILED, DONE, RUNNING
-from fastapi import HTTPException
+from scraper.config import FAILED, DONE, RUNNING, PENDING
 from sqlmodel import select
-from api.models.schemas import SearchResponse, OfferResponse
-from scraper.rekrute import get_jobs
-from db.database import get_session
+from scraper.sources.rekrute import get_jobs
+from scraper.db.session import get_session
+from datetime import datetime
 
-def start_scraping(search_id: int):
-    """
-    Lance le scraping dans un thread séparé.
-    """
-
-    thread = threading.Thread(
-        target=run_scraping,
-        args=(search_id,),
-        daemon=True
-    )
-
-    thread.start()
-
-def create_search(searchCreate: SearchCreate):
+def run_scraping_jobs(url: str, max_items: int = 10) -> dict:
     with get_session() as session:
-        search = SearchJob(url=searchCreate.url, max_items=searchCreate.maxItems, status=PENDING,created_at=datetime.now())
+        search = SearchJob(url=url, max_items=max_items, status=PENDING, created_at=datetime.now())
         session.add(search)
         session.commit()
         session.refresh(search)
         search_id = search.id
-    start_scraping(search_id)
-    searchCreateResponse = SearchCreateResponse(search_id=search_id, status=PENDING)
-    return searchCreateResponse
-
-def run_scraping(search_id: int):
-    """
-    Fonction exécutée dans le thread.
-    Elle récupère le SearchJob, lance le scraper,
-    sauvegarde les offres et met à jour le statut.
-    """
-
-    with get_session() as session:
-
-        search = session.get(SearchJob, search_id)
-
-        if search is None:
-            logging.error(
-                "SearchJob %s introuvable",
-                search_id
-            )
-            return
-
+        search.status = RUNNING 
+        session.commit()
+        count = 0
         try:
-            search.status = RUNNING
-            session.commit()
-            count = 0
             logging.info(
                 "Début du scraping pour search_id=%s",
                 search_id
@@ -104,6 +64,7 @@ def run_scraping(search_id: int):
             search.error = None
 
             session.commit()
+            status = DONE
 
             logging.info(
                 "Scraping terminé pour search_id=%s",
@@ -120,28 +81,8 @@ def run_scraping(search_id: int):
 
             search.status = FAILED
             search.error = str(e)
-
             session.commit()
 
-def get_jobs_by_search_id(search_id):
-    with get_session() as session:
-        search = session.get(SearchJob, search_id)
-        if search is None:
-            raise HTTPException(
-                status_code=404,
-                detail="Search not found"
-            )
-        
-        statement = select(Offer).where(
-            Offer.search_id == search_id
-        )
+            raise
 
-        offers = session.exec(statement).all()
-
-        count = len(offers)
-
-        offersResponseList: list[OfferResponse] = [OfferResponse(**offer.__dict__) for offer in offers]
-
-        searchResponse = SearchResponse(search_id=search.id, status=search.status, count=count, offers=offersResponseList, error=search.error)
-        return searchResponse
-        
+    return {"search_id": search_id, "status": status, "count": count}

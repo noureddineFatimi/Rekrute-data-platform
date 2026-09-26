@@ -1,11 +1,12 @@
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
-import scraper.utils as utils
 import logging 
+import scraper.sources.offer_parser as parser
+import scraper.sources.proxy as proxy
 
 def get_jobs(listing_url, maxItems=10): 
     url=listing_url
-    proxy_list = utils.initialize_proxy_list()
+    proxy_list = proxy.initialize_proxy_list()
     if not proxy_list:
         logging.error("Aucun proxy chargé depuis proxy-list.txt.")
         raise RuntimeError("Proxies required")
@@ -18,7 +19,7 @@ def get_jobs(listing_url, maxItems=10):
         try:
             while True:
                 logging.info("listing url: %s", url)
-                listing_html, proxy_index = utils.fetch_with_retries(
+                listing_html, proxy_index = proxy.fetch_with_retries(
                     browser, url, proxy_list, wait_selector="div.content-column", start_index=proxy_index
                 )
                 if not listing_html:
@@ -31,12 +32,12 @@ def get_jobs(listing_url, maxItems=10):
                 for post in posts:
                     if count >= maxItems:
                         break
-                    link = utils.get_link(post)
+                    link = proxy.get_link(post)
                     if not link:
                         logging.warning("Lien introuvable pour une offre, on passe")
                         continue
 
-                    html, proxy_index = utils.fetch_with_retries(
+                    html, proxy_index = proxy.fetch_with_retries(
                         browser, link, proxy_list,
                         wait_selector="div.contentbloc div.listWrpService.jobdetail .row h1",
                         extract_selector="div.contentbloc",
@@ -45,7 +46,7 @@ def get_jobs(listing_url, maxItems=10):
 
                     if html:
                         soup=BeautifulSoup(html, "html.parser")
-                        offer=utils.create_new_offer(beautifulSoupHtml=soup, link=link)
+                        offer=parser.create_new_offer(beautifulSoupHtml=soup, link=link)
                         logging.info(
                             "------- OK -------\n"
                             "link: %s\n"

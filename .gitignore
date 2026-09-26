@@ -5,3 +5,4 @@ venv/
 proxy-list.txt
 *.db
 db_password.txt
+temp/
