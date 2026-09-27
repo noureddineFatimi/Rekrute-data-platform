@@ -7,8 +7,8 @@ load_dotenv()
 def requireEnv(envName: str):
     value: str | None = os.getenv(envName)
     if value is None:
-        logging.error(f"{value} is missing")
-        raise RuntimeError(f"{value} is missing")
+        logging.error(f"{envName} is missing")
+        raise RuntimeError(f"{envName} is missing")
     else:
         return value  
 
