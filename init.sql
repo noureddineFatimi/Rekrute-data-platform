@@ -1,3 +1,5 @@
+CREATE DATABASE airflow;
+
 CREATE TABLE IF NOT EXISTS search_job (
     id SERIAL PRIMARY KEY,
 

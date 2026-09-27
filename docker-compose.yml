@@ -15,6 +15,11 @@ services:
       - db_password
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   adminer:
     image: adminer:latest
@@ -22,7 +27,8 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - app-network
 
@@ -41,7 +47,55 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  airflow-migrate:
+    image: airflow-workflows-manager:latest
+    build:
+      context: ./airflow
+      dockerfile: Dockerfile
+    container_name: airflow_migrate
+    environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/airflow
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["db", "migrate"]
+    networks:
+      - app-network
+
+  airflow-api:
+    image: airflow-workflows-manager:latest
+    build:
+      context: ./airflow
+      dockerfile: Dockerfile
+    container_name: airflow_api
+    environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/airflow
+    depends_on:
+      airflow-migrate:
+        condition: service_completed_successfully
+    ports:
+      - "8081:8080"
+    command: ["api-server"]
+    networks:
+      - app-network
+
+  airflow-scheduler:
+    image: airflow-workflows-manager:latest
+    build:
+      context: ./airflow
+      dockerfile: Dockerfile
+    container_name: airflow_scheduler
+    environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/airflow
+    depends_on:
+      airflow-migrate:
+        condition: service_completed_successfully
+    command: ["scheduler"]
     networks:
       - app-network
 
