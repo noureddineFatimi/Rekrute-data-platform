@@ -1,0 +1,6 @@
+playwright==1.62.0
+beautifulsoup4==4.15.0
+python-dotenv==1.2.3
+sqlmodel==0.0.39
+pylint==4.0.7
+psycopg[binary]

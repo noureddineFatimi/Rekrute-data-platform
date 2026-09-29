@@ -1,3 +1,23 @@
+x-postgres-environment: &postgres-environment
+  POSTGRES_USER: ${POSTGRES_USER}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  POSTGRES_DB: ${POSTGRES_DB}
+  POSTGRES_HOST: postgres
+  POSTGRES_PORT: 5432
+
+x-airflow-environment: &airflow-environment
+  AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/airflow
+  AIRFLOW__CORE__FERNET_KEY: ${FERNET_KEY}
+  POSTGRES_USER: ${POSTGRES_USER}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  PROXY_USERNAME: ${PROXY_USERNAME}
+  PASSWORD: ${PASSWORD}
+  POSTGRES_DB: ${POSTGRES_DB}
+  POSTGRES_HOST: postgres
+  POSTGRES_PORT: 5432
+  AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://airflow-api:8080/execution/
+  AIRFLOW__API_AUTH__JWT_SECRET: ${AIRFLOW__API_AUTH__JWT_SECRET}
+
 services:
   postgres:
     image: postgres:14.24-alpine3.23
@@ -39,11 +59,7 @@ services:
       dockerfile: Dockerfile
     container_name: offers_api
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_HOST: postgres
-      POSTGRES_PORT: 5432
+      <<: *postgres-environment
     ports:
       - "8000:8000"
     depends_on:
@@ -55,7 +71,7 @@ services:
   airflow-migrate:
     image: airflow-workflows-manager:latest
     build:
-      context: ./airflow
+      context: ./pipeline
       dockerfile: Dockerfile
     container_name: airflow_migrate
     environment:
@@ -70,11 +86,11 @@ services:
   airflow-api:
     image: airflow-workflows-manager:latest
     build:
-      context: ./airflow
+      context: ./pipeline
       dockerfile: Dockerfile
-    container_name: airflow_api
+    container_name: airflow-api
     environment:
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/airflow
+      <<: *airflow-environment
     depends_on:
       airflow-migrate:
         condition: service_completed_successfully
@@ -83,18 +99,42 @@ services:
     command: ["api-server"]
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/api/v2/monitor/health', timeout=5)"]
+      interval: 10s
+      timeout: 6s
+      retries: 10
+      start_period: 30s
+    
+  airflow-dag-processor:
+    image: airflow-workflows-manager:latest
+    build:
+      context: ./pipeline
+      dockerfile: Dockerfile
+    container_name: airflow_dag_processor
+    environment:
+      <<: *airflow-environment
+    depends_on:
+      airflow-migrate:
+        condition: service_completed_successfully
+    command: ["dag-processor"]
+    networks:
+      - app-network
 
   airflow-scheduler:
     image: airflow-workflows-manager:latest
     build:
-      context: ./airflow
+      context: ./pipeline
       dockerfile: Dockerfile
     container_name: airflow_scheduler
     environment:
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/airflow
+      <<: *airflow-environment
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
     depends_on:
       airflow-migrate:
         condition: service_completed_successfully
+      airflow-api:
+        condition: service_healthy
     command: ["scheduler"]
     networks:
       - app-network
