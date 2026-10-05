@@ -28,6 +28,7 @@ class StagingOffer(SQLModel, table=True):
     teletravail: str | None = None
     description: str | None = None
     date_limite: str | None = None
+    date_publication: str | None = None
     scraped_at: datetime = Field(default_factory=datetime.now)
 
 class Offer(SQLModel, table=True):
@@ -47,3 +48,4 @@ class Offer(SQLModel, table=True):
     teletravail: str | None = None
     description: str | None = None
     date_limite: str | None = None
+    date_publication: str | None = None

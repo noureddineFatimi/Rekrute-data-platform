@@ -6,7 +6,6 @@ from db.models import SearchJob, Offer, StagingOffer
 from db.session import get_session
 from sources.rekrute import get_jobs
 
-
 def scrape_offers(url: str, max_items: int = 10) -> int:
     """Task 1 du DAG : scrape et dépose en staging. Ne touche jamais à `offer`."""
     with get_session() as session:
@@ -22,7 +21,7 @@ def scrape_offers(url: str, max_items: int = 10) -> int:
                     region=offer_data.get("region"), formation=offer_data.get("formation"),
                     competences_personnelles=offer_data.get("competencesPersonnelles"),
                     contrat=offer_data.get("contrat"), teletravail=offer_data.get("teletravail"),
-                    description=offer_data.get("description"), date_limite=offer_data.get("dateLimite"),
+                    description=offer_data.get("description"), date_limite=offer_data.get("dateLimite"), date_publication=offer_data.get("datePublication")
                 ))
                 count += 1
             session.commit()
@@ -68,13 +67,14 @@ def validate_and_load_offers(search_id: int) -> dict:
                     existing.formation = row.formation; existing.competences_personnelles = row.competences_personnelles
                     existing.contrat = row.contrat; existing.teletravail = row.teletravail
                     existing.description = row.description; existing.date_limite = row.date_limite
+                    existing.date_publication = row.date_publication
                     existing.search_id = search_id
                 else:
                     session.add(Offer(
                         search_id=search_id, titre=row.titre, link=row.link, sector=row.sector,
                         experience=row.experience, region=row.region, formation=row.formation,
                         competences_personnelles=row.competences_personnelles, contrat=row.contrat,
-                        teletravail=row.teletravail, description=row.description, date_limite=row.date_limite,
+                        teletravail=row.teletravail, description=row.description, date_limite=row.date_limite, date_publication=row.date_publication
                     ))
                 accepted += 1
             search.status = DONE; search.error = None; session.commit()

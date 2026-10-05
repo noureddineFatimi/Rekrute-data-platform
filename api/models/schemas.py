@@ -14,6 +14,7 @@ class Offer(BaseModel):
     teletravail: str | None = None
     description: str | None = None
     date_limite: str | None = None
+    date_publication: str | None = None
 
 class OffersResponse(BaseModel):
     count :int = 0

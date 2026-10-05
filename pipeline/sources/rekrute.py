@@ -72,6 +72,7 @@ def get_jobs(listing_url, maxItems=10):
                             offer["teletravail"],
                             offer["dateLimite"],
                             offer["description"],
+                            offer["datePublication"]
                     )
                         count+=1
                         yield offer

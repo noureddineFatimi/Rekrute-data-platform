@@ -99,6 +99,8 @@ services:
     command: ["api-server"]
     networks:
       - app-network
+    volumes:
+      - ./proxy-list.txt:/opt/airflow/data/proxy-list.txt:ro
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/api/v2/monitor/health', timeout=5)"]
       interval: 10s
@@ -120,6 +122,8 @@ services:
     command: ["dag-processor"]
     networks:
       - app-network
+    volumes:
+      - ./proxy-list.txt:/opt/airflow/data/proxy-list.txt:ro
 
   airflow-scheduler:
     image: airflow-workflows-manager:latest
@@ -138,6 +142,8 @@ services:
     command: ["scheduler"]
     networks:
       - app-network
+    volumes:
+      - ./proxy-list.txt:/opt/airflow/data/proxy-list.txt:ro
 
 volumes:
   postgres_data:

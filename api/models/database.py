@@ -17,3 +17,4 @@ class Offer(SQLModel, table=True):
     teletravail: str | None = None
     description: str | None = None
     date_limite: str | None = None
+    date_publication: str | None = None

@@ -28,6 +28,21 @@ def get_job_description(beautifulSoupHtml, h2Keys):
                 sections.append(contenu)
     return "\n".join(sections) if sections else "not_defined"
 
+def get_date_publication(beautifulSoupHtml):
+    element = beautifulSoupHtml.select_one(
+        "div.listWrpService.jobdetail span.newjob"
+    )
+
+    datePublication = "not_defined"
+
+    if element:
+        for content in element.contents:
+            if isinstance(content, str) and content.strip():
+                datePublication = content.strip()
+                break
+
+    return datePublication
+
 def create_new_offer(beautifulSoupHtml, link):
     titre=get_property(beautifulSoupHtml=beautifulSoupHtml, selector="div.listWrpService.jobdetail .row h1")
     sector=get_property(beautifulSoupHtml=beautifulSoupHtml, selector="div.listWrpService.jobdetail .row h2")
@@ -39,6 +54,7 @@ def create_new_offer(beautifulSoupHtml, link):
     teletravail=get_property(beautifulSoupHtml=beautifulSoupHtml, selector="div.listWrpService.jobdetail span[title='Télétravail']")
     dateLimite=get_property(beautifulSoupHtml=beautifulSoupHtml, selector="div.listWrpService.jobdetail span.newjob b")
     description=get_job_description(beautifulSoupHtml=beautifulSoupHtml, h2Keys=["Poste :", "Profil recherché :"])
+    datePublication = get_date_publication(beautifulSoupHtml)
 
     offer={
         "titre": titre,
@@ -51,7 +67,10 @@ def create_new_offer(beautifulSoupHtml, link):
         "contrat": contrat,
         "teletravail": teletravail,
         "description": description,
-        "dateLimite": dateLimite
+        "dateLimite": dateLimite,
+        "datePublication": datePublication
     }
+
+    print(f"Offer created: {offer['titre']} - {offer['link']} - {offer['datePublication']}")
 
     return offer

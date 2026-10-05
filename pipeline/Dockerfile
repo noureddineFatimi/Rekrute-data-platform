@@ -15,6 +15,5 @@ COPY db/ /opt/airflow/db/
 COPY services/ /opt/airflow/services/
 COPY sources/ /opt/airflow/sources/
 COPY config.py /opt/airflow/config.py
-COPY data /opt/airflow/data/
 
 ENV PYTHONPATH="/opt/airflow"

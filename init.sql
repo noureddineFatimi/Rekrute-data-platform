@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS staging_offer (
     id SERIAL PRIMARY KEY,
     search_id INTEGER NOT NULL REFERENCES search_job(id),
     titre TEXT, link TEXT, sector TEXT, experience TEXT, region TEXT, formation TEXT,
-    competences_personnelles TEXT, contrat TEXT, teletravail TEXT, description TEXT, date_limite TEXT,
+    competences_personnelles TEXT, contrat TEXT, teletravail TEXT, description TEXT, date_limite TEXT, date_publication TEXT,
     scraped_at TIMESTAMP NOT NULL DEFAULT now()
 );
 
@@ -39,6 +39,8 @@ CREATE TABLE IF NOT EXISTS offer (
 
     description TEXT,
     date_limite TEXT,
+
+    date_publication TEXT,
 
     CONSTRAINT fk_offer_search_job
         FOREIGN KEY (search_id)
