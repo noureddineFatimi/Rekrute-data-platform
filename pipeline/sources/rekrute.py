@@ -2,13 +2,25 @@ from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 import logging 
 import sources.offer_parser as parser
+from db.session import get_session
+from db.models import Proxy
+from sqlmodel import select
 import sources.proxy as proxy
 
-def get_jobs(listing_url, maxItems=10): 
+def get_jobs(dag_run_id, listing_url, maxItems=10): 
     url=listing_url
-    proxy_list = proxy.initialize_proxy_list()
+    proxy_list=[]
+    proxy_list.append("DIRECT")
+    with get_session() as session:
+        try:
+            proxies = session.exec(select(Proxy).where(Proxy.dag_run_id == dag_run_id)).all()
+            for raw in proxies:
+                proxy_list.append(raw.proxy)
+        except:
+            logging.error("Error during loading proxies from database")
+            raise RuntimeError("Error during loading proxies from database")
     if not proxy_list:
-        logging.error("Aucun proxy chargé depuis proxy-list.txt.")
+        logging.error("Aucun proxy chargé depuis la base")
         raise RuntimeError("Proxies required")
 
     count = 0

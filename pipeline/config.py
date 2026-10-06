@@ -12,8 +12,6 @@ def requireEnv(envName: str):
     else:
         return value  
 
-PROXY_USERNAME = requireEnv("PROXY_USERNAME")
-PASSWORD = requireEnv("PASSWORD")
 POSTGRES_USER = requireEnv("POSTGRES_USER")
 POSTGRES_PASSWORD = requireEnv("POSTGRES_PASSWORD")
 POSTGRES_DB = os.getenv("POSTGRES_DB", "rekrute_db")

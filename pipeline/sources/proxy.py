@@ -1,37 +1,11 @@
 import os
 import time
-from config import PROXY_USERNAME, PASSWORD
 import logging
-from pathlib import Path
 
 NAV_TIMEOUT = 20000  # proxies gratuits = souvent lents, 10s coupait trop court
 DEBUG_DIR = "debug_dumps"  # screenshot + HTML sauvegardés ici quand wait_for_selector échoue
-USERNAME = PROXY_USERNAME
-PASSWORD = PASSWORD
-BASE_DIR = Path(__file__).resolve().parent
-PROXY_LIST_PATH = BASE_DIR.parent / "data" / "proxy-list.txt"
 
 logger = logging.getLogger(__name__)
-
-def initialize_proxy_list(path=PROXY_LIST_PATH):
-    """Charge les proxies, un par ligne (format ip:port ou host:port)."""
-    proxy_list = []
-    try:
-        with open(path, "r", encoding="utf-8") as f:
-            for line in f:
-                proxy = line.strip()  # sans strip(), chaque proxy contenait un "\n" -> invalide
-                if not proxy:
-                    continue
-                if proxy == "DIRECT":
-                    proxy_list.append(proxy)
-                    continue
-                if "://" not in proxy:
-                    proxy = f"http://{proxy}"
-                proxy_list.append(proxy)
-    except FileNotFoundError:
-        logger.error("Fichier introuvable : %s", path)
-        return []
-    return proxy_list
 
 def get_link(post):
     """Extrait le lien complet de l'offre depuis un <li class='post-id'>."""
@@ -72,7 +46,7 @@ def fetch_html(browser, url, proxy, wait_selector, extract_selector=None, timeou
     timeout...) pour que l'appelant sache exactement pourquoi et puisse changer de proxy.
     """
     extract_selector = extract_selector or wait_selector
-    context = browser.new_context() if proxy == "DIRECT" else browser.new_context(proxy={"server": proxy, "username": USERNAME, "password": PASSWORD})
+    context = browser.new_context() if proxy == "DIRECT" else browser.new_context(proxy={"server": proxy})
     try:
         page = context.new_page()
         response = page.goto(url, timeout=timeout, wait_until="domcontentloaded")

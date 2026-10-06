@@ -1,6 +1,13 @@
 from datetime import datetime
 from sqlmodel import SQLModel, Field
 
+class Proxy(SQLModel, table=True):
+    __tablename__ = "proxy"
+
+    id: int | None = Field(default=None, primary_key=True)
+    proxy: str
+    dag_run_id: str
+
 class SearchJob(SQLModel, table=True):
     __tablename__ = "search_job"
 

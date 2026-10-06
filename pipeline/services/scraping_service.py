@@ -5,7 +5,7 @@ from db.models import SearchJob, StagingOffer
 from db.session import get_session
 from sources.rekrute import get_jobs
 
-def scrape_offers(url: str, max_items: int = 10) -> int:
+def scrape_offers(dag_run_id: str, url: str, max_items: int = 10) -> int:
     """Task 1 du DAG : scrape et dépose en staging. Ne touche jamais à `offer`."""
     with get_session() as session:
         search = SearchJob(url=url, max_items=max_items, status=RUNNING, created_at=datetime.now())
@@ -13,7 +13,7 @@ def scrape_offers(url: str, max_items: int = 10) -> int:
         search_id = search.id
         try:
             count = 0
-            for offer_data in get_jobs(url, max_items):
+            for offer_data in get_jobs(dag_run_id, url, max_items):
                 session.add(StagingOffer(
                     search_id=search_id, titre=offer_data.get("titre"), link=offer_data.get("link"),
                     sector=offer_data.get("sector"), experience=offer_data.get("experience"),
