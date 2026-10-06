@@ -1,5 +1,11 @@
 CREATE DATABASE airflow;
 
+CREATE TABLE IF NOT EXISTS proxy (
+    id SERIAL PRIMARY KEY,
+    proxy TEXT NOT NULL,
+    dag_run_id TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS search_job (
     id SERIAL PRIMARY KEY,
 
