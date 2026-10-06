@@ -21,7 +21,7 @@ def rekrute_scraping():
 
     @task
     def run_validate(search_id: int):
-        from services.scraping_service import validate_and_load_offers
+        from services.validating_loading_service import validate_and_load_offers
 
         result = validate_and_load_offers(search_id)
         return result
