@@ -75,7 +75,7 @@ The platform follows a simple ingestion → staging → processing → serving a
 ### Architecture image
 
 <p align="center">
-  <img src="docs/images/architecture.png" alt="System architecture" width="700">
+  <img src="docs/images/architecture.png" alt="System architecture" width="400">
 </p>
 
 
