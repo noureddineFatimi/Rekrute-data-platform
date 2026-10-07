@@ -487,27 +487,21 @@ The README intentionally leaves space for a few screenshots that are useful when
 
 ### Airflow DAG
 
-```markdown
+
 ![Airflow DAG](docs/images/airflow-dag.png)
-```
+
 
 ### Airflow execution
 
-```markdown
 ![Airflow execution](docs/images/airflow-run.png)
-```
 
 ### Database / Adminer
 
-```markdown
 ![Database](docs/images/adminer.png)
-```
 
 ### API documentation
 
-```markdown
 ![FastAPI documentation](docs/images/fastapi-docs.png)
-```
 
 ### Recommended `docs/images` directory
 
