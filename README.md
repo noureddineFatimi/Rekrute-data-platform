@@ -67,18 +67,16 @@ The platform follows a simple ingestion → staging → processing → serving a
                          └──────────────────────┘
 
                 ┌────────────────────────────────────┐
-                │          Apache Airflow             │
+                │          Apache Airflow            │
                 │  DAGs / scheduling / orchestration │
                 └────────────────────────────────────┘
 ```
 
 ### Architecture image
 
-If you create a polished architecture diagram later, place it here:
 
-```markdown
 ![System architecture](docs/images/architecture.png)
-```
+
 
 Recommended file:
 
