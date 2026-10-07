@@ -74,8 +74,9 @@ The platform follows a simple ingestion → staging → processing → serving a
 
 ### Architecture image
 
-
-![System architecture](docs/images/architecture.png)
+<p align="center">
+  <img src="docs/images/architecture.png" alt="System architecture" width="700">
+</p>
 
 
 Recommended file:
@@ -475,9 +476,9 @@ The final `offer.link` field is unique, providing a database-level protection ag
 
 A database diagram can be added here once generated:
 
-```markdown
-![Database schema](docs/images/database-schema.png)
-```
+<p align="center">
+  <img src="docs/images/database-schema.png" alt="Database schema" width="700">
+</p>
 
 ---
 
